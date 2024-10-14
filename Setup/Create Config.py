@@ -3,7 +3,7 @@ import sys, os, importlib
 # Get the parent directory
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
-import src.Logger.Logger as Logger
+import src.Logger as Logger
 
 def CreateConfigs():
     try:
