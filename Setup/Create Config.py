@@ -7,8 +7,8 @@ import src.Logger as Logger
 
 def CreateConfigs():
     try:
-        Logger.CreateLoggerConfig()
-        logging = Logger.create_logger()
+        Logger.__CreateDefaultConfig()
+        logging = Logger.create_root()
         logger = logging.getLogger("Create Configs")
         logger.info("Sucessfully created logger and associated config.")
     except Exception as e:

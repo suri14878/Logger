@@ -9,7 +9,7 @@ Follow this section if you are looking to use the Logger class in other projects
 ### Include in requirements.txt to pip install:
 To include the project, add the following line to your requirements.txt. You will have to be logged into your git account on the host machine.
 ```
-Logger @ git+https://github.com/ULL-IR-Office/Logger@main
+Logger@git+https://github.com/ULL-IR-Office/Logger@main
 ```
 
 If you need to install it without github credentials, it is recommended to build the package file and include it within your project. You can customize the location of this file in your project. See 'How to modify the project' section on how to build the package files.
@@ -20,10 +20,10 @@ The below example references saving the file to a 'Packages' project subfolder. 
 ```
 
 ### Reference in your code:
-Inside of your python files, at the top you can the following statements once. Typically create_logger() should only be called once from your primary/main thread. 
+Inside of your python files, at the top you can the following statements once. Typically create_root() should only be called once from your primary/main thread. 
 ```
 import Logger
-logging = Logger.create_logger()
+logging = Logger.create_root()
 ```
 
 Whenever you need to reference a new logger, you can use the following code. Typically, this can be when you're starting a file, or defining a new class.
