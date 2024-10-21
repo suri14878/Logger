@@ -18,7 +18,7 @@ if not exist "%VIRTUAL_ENV%" (
     echo Virtual environment not found. Please create it first and provide the correct path to your virtual environment's python.exe file.
     pause
     rem exit /b 1
-)When you're ready to build 
+)
 
 cd "%PROJ_DIR%"
 "%VIRTUAL_ENV%" -m pip install --upgrade build
