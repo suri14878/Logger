@@ -1,8 +1,26 @@
 import logging, os, configparser, datetime
+from pathlib import Path
 
+default_config_path = "./Configs/Logger.ini"
 
-def create_root(ConfigFilePath = None, OverwriteRoot=False):
-    '''Attempts to set up the root service so that you can build out multiple loggers.'''
+def create_root(ConfigFilePath:Path = None, LogRelativeToConfig:Path=None, OverwriteRoot:bool = False):
+    """
+    This method should be called prior to creating any loggers and typically must only be called once. 
+    Attempts to set up the root service so that you can build out multiple loggers. 
+
+    Parameters:
+            ConfigFilePath (Path): The filepath to the logger configuration file. 
+                If unspecified, it will default to "./Configs/Logger.ini". 
+                If it doesn't already exist, it will attempt to create it.
+            LogRelativeToConfig (Path): By default, the logger's output location will be based on a relative or absolute path provided in the config file.
+                Depending on how this method is called, that relative path may be interpretted locally (Usually this occurs if you're utilizing the logger from multiple services)
+                Changing this parameter to will ensure the log file is saved relative to the config location.
+                If the config is saved in a "./Configs/" subfolder, then passing "../" will save it in the base folder in a similar to default behavior.
+            OverwriteRoot (bool): By default once a root is created this method will not attempt to re-create the root logger.
+                Changing this to True will allow this method to overwrite the root handler. Utilizing this may result in loss of previously logged messages,
+                especially if you're writing to the same log location after the overwrite.
+                Use this if you're needing to modify and update logger settings in the middle of program execution.
+    """
     try:
         # Checks if create_logger() is called multiple times.
         removed_handlers = False
@@ -20,15 +38,14 @@ def create_root(ConfigFilePath = None, OverwriteRoot=False):
         
         # Attempts to read logger config file
         if ConfigFilePath is None:
-            config = __ReadConfig()
-        else:
-            config = __ReadConfig(file_path=ConfigFilePath)
+            ConfigFilePath = default_config_path
+        config = __ReadConfig(file_path=ConfigFilePath)
 
         # If we are missing the default config file and expected it, then try to automatically create it and recover.
-        if config is None and ConfigFilePath is None:
+        if config is None and ConfigFilePath == default_config_path:
             __SafeLogging('info', "Default logger config expected was not found. Attempting to create it.")
-            __CreateDefaultConfig()
-            config = __ReadConfig()
+            __CreateDefaultConfig(config_filename = ConfigFilePath)
+            config = __ReadConfig(file_path = ConfigFilePath)
 
         file_path = config['Logger Settings']['FilePath']
         file_name = config['Logger Settings']['FileName']
@@ -38,6 +55,24 @@ def create_root(ConfigFilePath = None, OverwriteRoot=False):
         consoleOutput = config['Logger Settings']['ConsoleOutput']
         log_level = config['Logger Settings']['LogLevel']
         
+        if LogRelativeToConfig is not None:
+            if(Path(file_path).is_absolute()):
+                __SafeLogging('warning', "LogRelativeToConfig paremeter specified for an absolute path. Expected a relative path for logger FilePath only.")
+                __SafeLogging('warning', f"Using path: {file_path}")
+            elif not os.path.exists(LogRelativeToConfig):
+                __SafeLogging('warning', "LogRelativeToConfig paremeter is not a path object. Expected a relative path in this parameter.")
+                __SafeLogging('warning', f"Using path: {file_path}")
+            elif Path(LogRelativeToConfig).is_absolute() or not LogRelativeToConfig.startswith("."):
+                __SafeLogging('warning', "LogRelativeToConfig paremeter specified as an absolute path. Expected a relative path that starts with '.' in this parameter.")
+                __SafeLogging('warning', f"Using path: {file_path}")
+            else:
+                 # set filepath to be relative to the config's parent directory.
+                config_absolute = os.path.abspath(ConfigFilePath)
+                parent_directory = os.path.dirname(config_absolute)
+                file_path = os.path.abspath(os.path.join(parent_directory, LogRelativeToConfig, file_path))
+                file_path = os.path.join(file_path, "") # This appends a final "\" to set it as a directory.
+                __SafeLogging('info', f"Logging using modified relative path: {file_path}")
+
         # Creates directory for logger if it doesn't exist
         __MakeDirectory(file_path)
         
@@ -70,7 +105,7 @@ def create_logger(**kwargs):
     __SafeLogging('warning', 'The create_logger() function is deprecated. Please utilize create_root() for clarity.')
     create_root(**kwargs)
 
-def __CreateDefaultConfig(config_filename = "./Configs/Logger.ini"):
+def __CreateDefaultConfig(config_filename = default_config_path):
     ''' Creates default config for logger. Used internally.
     '''
     try:
@@ -118,14 +153,14 @@ def __MakeDirectory(file_path):
     try:
         directory = os.path.dirname(file_path)
         if not os.path.exists(directory) and len(directory) > 0:
-            __SafeLogging('info', f"Directory {directory} did not exist, creating it.")
+            __SafeLogging('info', f"Directory {os.path.abspath(directory)} did not exist, creating it.")
             os.makedirs(directory)
         return True
     except Exception as e:
         __SafeLogging('error', f"Exception creating directory: {e}")
         return False
 
-def __ReadConfig(file_path = "./Configs/Logger.ini"):
+def __ReadConfig(file_path = default_config_path):
     '''Used internally to read the config file.
     '''
     try:
