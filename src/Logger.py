@@ -41,9 +41,9 @@ def create_root(ConfigFilePath:Path = None, LogRelativeToConfig:Path=None, Overw
             ConfigFilePath = default_config_path
         config = __ReadConfig(file_path=ConfigFilePath)
 
-        # If we are missing the default config file and expected it, then try to automatically create it and recover.
-        if config is None and ConfigFilePath == default_config_path:
-            __SafeLogging('info', "Default logger config expected was not found. Attempting to create it.")
+        # If we are missing the config file, then try to automatically create a default one and recover.
+        if config is None:
+            __SafeLogging('info', "Logger config was not found. Attempting to create a default one.")
             __CreateDefaultConfig(config_filename = ConfigFilePath)
             config = __ReadConfig(file_path = ConfigFilePath)
 
