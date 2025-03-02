@@ -9,7 +9,7 @@ Follow this section if you are looking to use the Logger class in other projects
 ### Include in requirements.txt to pip install:
 To include the project, add the following line to your requirements.txt. You will have to be logged into your git account on the host machine.
 ```
-Logger@git+https://github.com/ULL-IR-Office/Logger@main
+Logger@git+https://github.com/suri14878/Logger@main
 ```
 
 If you need to install it without github credentials, it is recommended to build the package file and include it within your project. You can customize the location of this file in your project. See 'How to modify the project' section on how to build the package files.
@@ -67,7 +67,7 @@ Follow this section if you are looking to make changes to the Logger class. It w
 
 1. Clone the repository:
    ```
-   git clone https://github.com/ULL-IR-Office/Logger.git
+   git clone https://github.com/suri14878/Logger.git
    ```
 
 2. Set up a Python virtual environment. For windows, there is a `Create Virtual Environment.bat` file within the `Setup` subfolder that will automatically set up the virtual environment and all dependencies.
